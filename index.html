@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>lcs_kementan_v2.5</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
+/* AUTO UPPERCASE (EXCEPT JUDUL KONTEN) */
+document.addEventListener("input", function(e){
+  const el = e.target;
+  if((el.tagName === "INPUT" || el.tagName === "TEXTAREA")){
+    if(el.type !== "file" && el.type !== "date" && !el.classList.contains("judul")){
+      const pos = el.selectionStart;
+      el.value = el.value.toUpperCase();
+      if(pos !== null) el.setSelectionRange(pos, pos);
+    }
+  }
+});
+
+</script>
+
+<style>
+body{font-family:Arial;margin:0;background:#fff;}
+.container{padding:15px;}
+.kop{text-align:center;font-weight:bold;background:#b7c99a;padding:10px;text-transform:uppercase;line-height:1.4;}
+.spacer{height:28px;}
+.info-table{width:100%;border-collapse:collapse;margin-top:0;}
+.info-table td{padding:4px;}
+.label{width:160px;}
+.keterangan{font-size:12px;color:#b30000;font-style:italic;}
+table.main{width:100%;border-collapse:collapse;margin-top:4px;}
+.main th,.main td{border:1px solid #000;padding:5px;vertical-align:top;text-align:left;}
+.main th{background:#b7c99a;text-transform:uppercase;text-align:center;vertical-align:middle;}
+.bigrow{height:260px;}
+input,textarea,select{width:100%;font-size:14px;padding:4px;border:1px solid #ccc;border-radius:4px;}
+textarea{resize:none;height:75px;line-height:1.4;text-align:left;}
+.preview{width:100%;height:220px;object-fit:contain;}
+button{margin-top:10px;padding:12px;background:#1b5e20;color:white;border:none;width:100%;font-size:16px;}
+.btnAdd{background:#1565c0;}
+
+@media (max-width:600px){
+  .container{padding:10px;}
+  .label{width:110px;font-size:13px;}
+  .info-table td{padding:2px 3px;}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="kop">
+LAPORAN PENDERASAN INFORMASI DAN PEMBANGUNAN PERTANIAN<br>
+PENYULUH PERTANIAN TAHUN 2026
+</div>
+
+<div class="spacer"></div>
+
+<table class="info-table">
+<tr>
+<td class="label">PERIODE</td><td>:</td>
+<td>
+<select id="bulan">
+<option>JANUARI</option>
+<option>FEBRUARI</option>
+<option>MARET</option>
+<option>APRIL</option>
+<option>MEI</option>
+<option>JUNI</option>
+<option>JULI</option>
+<option>AGUSTUS</option>
+<option>SEPTEMBER</option>
+<option>OKTOBER</option>
+<option>NOVEMBER</option>
+<option>DESEMBER</option>
+</select>
+</td>
+</tr>
+
+<tr><td class="label">Instansi / BPP</td><td>:</td><td><input type="text" id="instansi"></td></tr>
+<tr><td class="label">Nama Penyuluh</td><td>:</td><td><input type="text" id="nama"></td></tr>
+<tr><td class="label">NIP</td><td>:</td><td><input type="text" id="nip"></td></tr>
+
+<tr>
+<td class="label">Wilayah Binaan</td><td>:</td>
+<td><input type="text" id="wilayah"><div class="keterangan">* PPL Provinsi tidak perlu mengisi</div></td>
+</tr>
+
+<tr>
+<td class="label">Kecamatan</td><td>:</td>
+<td><input type="text" id="kecamatan"><div class="keterangan">* PPL Provinsi tidak perlu mengisi</div></td>
+</tr>
+
+<tr>
+<td class="label">Kabupaten / Prov</td><td>:</td>
+<td><input type="text" id="kabprov"></td>
+</tr>
+</table>
+
+<table class="main" id="tabel">
+<tr>
+<th rowspan="2" width="15%">TANGGAL</th>
+<th rowspan="2" width="18%">JUDUL KONTEN</th>
+<th colspan="3">EVIDEN</th>
+</tr>
+<tr>
+<th width="22%">LIKE</th>
+<th width="22%">COMMENT</th>
+<th width="23%">SHARE</th>
+</tr>
+</table>
+
+<button class="btnAdd" id="btnTambah">➕ Tambah Baris</button>
+<button id="btnExport">EXPORT PDF</button>
+
+</div>
+
+<script>
+
+function getToday(){
+const today=new Date();
+const yyyy=today.getFullYear();
+const mm=String(today.getMonth()+1).padStart(2,'0');
+const dd=String(today.getDate()).padStart(2,'0');
+return `${yyyy}-${mm}-${dd}`;
+}
+
+function formatTanggalPanjang(tgl){
+ if(!tgl) return "";
+ const bulan=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+ const d=new Date(tgl);
+ return d.getDate()+" "+bulan[d.getMonth()]+" "+d.getFullYear();
+}
+
+function tambahBaris(){
+const tabel=document.getElementById("tabel");
+const tr=document.createElement("tr");
+tr.className="bigrow";
+
+tr.innerHTML=`
+<td><input type="date" class="tanggal"></td>
+<td><textarea class="judul"></textarea></td>
+<td><input type="file" class="like" accept="image/*"><img class="preview"></td>
+<td><input type="file" class="comment" accept="image/*"><img class="preview"></td>
+<td><input type="file" class="share" accept="image/*"><img class="preview"></td>
+`;
+
+tabel.appendChild(tr);
+tr.querySelector(".tanggal").value=getToday();
+}
+
+tambahBaris();
+document.getElementById("btnTambah").onclick=tambahBaris;
+
+document.addEventListener("change", function(e){
+if(e.target && e.target.type==="file"){
+const file=e.target.files[0];
+const img=e.target.parentElement.querySelector(".preview");
+if(file && img){
+const reader=new FileReader();
+reader.onload=ev=>img.src=ev.target.result;
+reader.readAsDataURL(file);
+}
+}
+});
+
+async function processImage(file){
+ return new Promise(resolve=>{
+  if(!file){ resolve(null); return; }
+  const img=new Image();
+  const reader=new FileReader();
+  reader.onload=e=>img.src=e.target.result;
+  reader.readAsDataURL(file);
+  img.onload=function(){
+    const canvas=document.createElement("canvas");
+    const ctx=canvas.getContext("2d");
+    canvas.width=img.width;
+    canvas.height=img.height;
+    ctx.drawImage(img,0,0);
+    resolve(canvas.toDataURL("image/jpeg",0.7));
+  };
+ });
+}
+
+function drawHeader(doc){
+
+const bulan=document.getElementById("bulan").value;
+const nama=document.getElementById("nama").value.toUpperCase();
+const nip=document.getElementById("nip").value.toUpperCase();
+const wilayah=document.getElementById("wilayah").value.toUpperCase();
+const kecamatan=document.getElementById("kecamatan").value.toUpperCase();
+const instansi=document.getElementById("instansi").value.toUpperCase();
+const kabprov=document.getElementById("kabprov").value.toUpperCase();
+
+doc.setFillColor(183,201,154);
+doc.rect(17,10,185,16,"F");
+
+doc.setFontSize(11);
+doc.text("LAPORAN PENDERASAN INFORMASI DAN PEMBANGUNAN PERTANIAN",109.5,16,{align:"center"});
+doc.text("PENYULUH PERTANIAN TAHUN 2026",109.5,22,{align:"center"});
+
+doc.setFontSize(9);
+let y=32;
+
+doc.text("PERIODE",17,y); doc.text(":",52,y); doc.text(bulan,55,y); y+=5;
+doc.text("INSTANSI/BPP",17,y); doc.text(":",52,y); doc.text(instansi,55,y); y+=5;
+doc.text("NAMA PENYULUH",17,y); doc.text(":",52,y); doc.text(nama,55,y); y+=5;
+doc.text("NIP",17,y); doc.text(":",52,y); doc.text(nip,55,y); y+=5;
+
+if(wilayah){doc.text("WILAYAH BINAAN",17,y); doc.text(":",52,y); doc.text(wilayah,55,y); y+=5;}
+if(kecamatan){doc.text("KECAMATAN",17,y); doc.text(":",52,y); doc.text(kecamatan,55,y); y+=5;}
+
+doc.text("KABUPATEN/PROV",17,y); doc.text(":",52,y); doc.text(kabprov,55,y);
+
+return 70;
+}
+
+function drawTableHeader(doc,y){
+
+doc.setFillColor(183,201,154);
+doc.rect(17,y,25,12,"FD");
+doc.rect(42,y,40,12,"FD");
+doc.rect(82,y,120,6,"FD");
+doc.rect(82,y+6,40,6,"FD");
+doc.rect(122,y+6,40,6,"FD");
+doc.rect(162,y+6,40,6,"FD");
+
+doc.setFontSize(9);
+doc.text("TANGGAL",29.5,y+7,{align:"center"});
+doc.text("JUDUL KONTEN",62,y+7,{align:"center"});
+doc.text("EVIDEN",142,y+4,{align:"center"});
+doc.text("LIKE",102,y+10,{align:"center"});
+doc.text("COMMENT",142,y+10,{align:"center"});
+doc.text("SHARE",182,y+10,{align:"center"});
+
+return y+12;
+}
+
+document.getElementById("btnExport").onclick=exportPDF;
+
+async function exportPDF(){
+
+const { jsPDF }=window.jspdf;
+const doc=new jsPDF("p","mm","a4");
+
+let y=drawHeader(doc);
+y=drawTableHeader(doc,y);
+
+const rowHeight=65;
+let rowCount=0;
+const rows=document.querySelectorAll("#tabel tr.bigrow");
+
+for(const row of rows){
+
+if(rowCount===3){
+doc.addPage();
+y=drawHeader(doc);
+y=drawTableHeader(doc,y);
+rowCount=0;
+}
+
+doc.rect(17,y,25,rowHeight);
+doc.rect(42,y,40,rowHeight);
+doc.rect(82,y,40,rowHeight);
+doc.rect(122,y,40,rowHeight);
+doc.rect(162,y,40,rowHeight);
+
+const tanggal=formatTanggalPanjang(row.querySelector(".tanggal").value);
+const judul=row.querySelector(".judul").value;
+
+doc.setFontSize(7);
+doc.text(tanggal||"",19,y+4);
+doc.text(doc.splitTextToSize(judul||"",38),44,y+4);
+
+const like=await processImage(row.querySelector(".like").files[0]);
+if(like) doc.addImage(like,"JPEG",84,y+2,36,rowHeight-4);
+
+const comment=await processImage(row.querySelector(".comment").files[0]);
+if(comment) doc.addImage(comment,"JPEG",124,y+2,36,rowHeight-4);
+
+const share=await processImage(row.querySelector(".share").files[0]);
+if(share) doc.addImage(share,"JPEG",164,y+2,36,rowHeight-4);
+
+y+=rowHeight;
+rowCount++;
+}
+
+const totalPages=doc.getNumberOfPages();
+doc.setFont("helvetica","normal");
+doc.setFontSize(9);
+doc.setTextColor(150,150,150);
+
+for(let i=1;i<=totalPages;i++){
+doc.setPage(i);
+doc.text("lcs_ppl_kementan",17,285);
+doc.text("hal "+i+" dari "+totalPages,200,285,{align:"right"});
+}
+
+const namaPpl=(document.getElementById("nama").value.toUpperCase()||"ppl").replace(/\s+/g,"_").toLowerCase();
+const today=new Date();
+const dd=String(today.getDate()).padStart(2,'0');
+const mm=String(today.getMonth()+1).padStart(2,'0');
+const yyyy=today.getFullYear();
+const filename=`${namaPpl.toUpperCase()}_LCS_${dd}${mm}${yyyy}.pdf`;
+
+const blobUrl=doc.output("bloburl");
+window.open(blobUrl,"_blank");
+doc.save(filename);
+
+}
+
+
+/* AUTO UPPERCASE (EXCEPT JUDUL KONTEN) */
+document.addEventListener("input", function(e){
+  const el = e.target;
+  if((el.tagName === "INPUT" || el.tagName === "TEXTAREA")){
+    if(el.type !== "file" && el.type !== "date" && !el.classList.contains("judul")){
+      const pos = el.selectionStart;
+      el.value = el.value.toUpperCase();
+      if(pos !== null) el.setSelectionRange(pos, pos);
+    }
+  }
+});
+
+</script>
+
+</body>
+</html>
