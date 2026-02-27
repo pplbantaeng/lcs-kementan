@@ -120,6 +120,11 @@ PENYULUH PERTANIAN TAHUN 2026
 
 <script>
 
+function hitCounterLCS() {
+  var img = new Image();
+  img.src = "https://hitwebcounter.com/counter/counter.php?page=21479768";
+}
+  
 function getToday(){
 const today=new Date();
 const yyyy=today.getFullYear();
@@ -243,6 +248,8 @@ document.getElementById("btnExport").onclick=exportPDF;
 
 async function exportPDF(){
 
+hitCounterLCS();
+  
 const { jsPDF }=window.jspdf;
 const doc=new jsPDF("p","mm","a4");
 
