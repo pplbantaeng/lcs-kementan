@@ -121,9 +121,10 @@ PENYULUH PERTANIAN TAHUN 2026
 <script>
 
 function hitCounterLCS() {
-    fetch("https://hitwebcounter.com/counter/counter.php?page=21479768", {
-        mode: "no-cors"
-    });
+    const img = document.createElement("img");
+    img.src = "https://hitwebcounter.com/counter/counter.php?page=21479768";
+    img.style.display = "none";
+    document.body.appendChild(img);
 }
   
 function getToday(){
