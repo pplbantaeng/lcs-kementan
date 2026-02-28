@@ -123,10 +123,12 @@ PENYULUH PERTANIAN TAHUN 2026
 <script>
 
 function hitCounterLCS() {
-    const img = document.createElement("img");
-    img.src = "https://hitwebcounter.com/counter/counter.php?page=21479768";
-    img.style.display = "none";
-    document.body.appendChild(img);
+  if (window.goatcounter) {
+    window.goatcounter.count({
+      path: "export-lcs",
+      title: "Export PDF LCS"
+    });
+  }
 }
   
 function getToday(){
@@ -337,6 +339,7 @@ document.addEventListener("input", function(e){
 });
 
 </script>
-  
+<script data-goatcounter="https://irsant.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>  
 </body>
 </html>
