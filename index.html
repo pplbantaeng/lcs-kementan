@@ -123,12 +123,19 @@ PENYULUH PERTANIAN TAHUN 2026
 <script>
 
 function hitCounterLCS() {
-  if (window.goatcounter && window.goatcounter.count) {
-    window.goatcounter.count({
-      path: "export-lcs",
-      title: "Export PDF LCS"
-    });
+
+  function sendHit() {
+    if (window.goatcounter && window.goatcounter.count) {
+      window.goatcounter.count({
+        path: "export-lcs",
+        title: "Export PDF LCS"
+      });
+    } else {
+      setTimeout(sendHit, 300); // tunggu script siap
+    }
   }
+
+  sendHit();
 }
   
 function getToday(){
